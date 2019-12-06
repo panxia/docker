@@ -1,0 +1,25 @@
+version: '3'
+services:
+  master:
+    image: redis
+    ports: # 指定端口映射
+    - "6379:6379"
+  slave:
+    image: redis
+    environment:
+    - SENTINEL_DOWN_AFTER=5000
+    - SENTINEL_FAILOVER=5000
+    command: redis-server  --slaveof redis-master 6379
+    links:
+    - master:redis-master
+  sentinel:
+    build: .  # 指定 Dockerfile 所在路径
+    environment:
+    - SENTINEL_DOWN_AFTER=5000
+    - SENTINEL_FAILOVER=5000
+    links:
+    - master:redis-master
+    - slave
+  client:
+    image: redis
+
